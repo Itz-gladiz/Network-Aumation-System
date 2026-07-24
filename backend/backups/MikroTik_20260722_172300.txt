@@ -1,0 +1,47 @@
+# 2026-07-22 17:20:48 by RouterOS 7.12.2
+# software id = ZZ7Z-ENYR
+#
+# model = L009UiGS
+# serial number = HG909ZE9ABR
+/interface bridge
+add name=bridge-SWECOM
+/interface ethernet
+set [ find default-name=ether1 ] name=ether1-WAN
+set [ find default-name=ether2 ] name=ether2-LAN
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip pool
+add name=dhcp_pool ranges=192.168.1.10-192.168.1.254
+/ip dhcp-server
+add address-pool=dhcp_pool interface=bridge-SWECOM lease-time=1d name=dhcp1
+/port
+set 0 name=serial0
+/interface bridge port
+add bridge=bridge-SWECOM interface=ether2-LAN
+add bridge=bridge-SWECOM interface=ether3
+add bridge=bridge-SWECOM interface=ether4
+add bridge=bridge-SWECOM interface=ether5
+add bridge=bridge-SWECOM interface=ether6
+add bridge=bridge-SWECOM interface=ether7
+add bridge=bridge-SWECOM interface=ether8
+/ip address
+add address=192.168.1.1/24 interface=bridge-SWECOM network=192.168.1.0
+/ip dhcp-client
+add interface=ether1-WAN
+/ip dhcp-server network
+add address=192.168.1.0/24 dns-server=8.8.8.8,1.1.1.1 gateway=192.168.1.1
+/ip dns
+set allow-remote-requests=yes servers=8.8.8.8,1.1.1.1
+/ip firewall filter
+add action=accept chain=input connection-state=established,related in-interface=ether1-WAN
+add action=drop chain=input in-interface=ether1-WAN
+add action=accept chain=forward connection-state=established,related
+add action=drop chain=forward connection-state=invalid
+/ip firewall nat
+add action=masquerade chain=srcnat out-interface=ether1-WAN
+/system clock
+set time-zone-name=Africa/Douala
+/system note
+set show-at-login=no
+/system routerboard settings
+set enter-setup-on=delete-key
